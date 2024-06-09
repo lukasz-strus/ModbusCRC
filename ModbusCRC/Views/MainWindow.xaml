@@ -7,9 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:ModbusCRC.ViewModels"
     Title="Kalkulator CRC"
-    Width="400"
+    Width="500"
     Height="350"
-    MinWidth="400"
+    MinWidth="500"
     MinHeight="350"
     d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
     mc:Ignorable="d">

@@ -49,7 +49,7 @@ internal partial class MainViewModel : ObservableObject
             decimal elapsedMilliseconds = stopWatch.ElapsedMilliseconds;
             ResultTime = elapsedMilliseconds.ToString(CultureInfo.CurrentCulture);
             var elapsedIterationMilliseconds = elapsedMilliseconds / iterations;
-            ResultIterationTime = elapsedIterationMilliseconds.ToString(CultureInfo.InvariantCulture);
+            ResultIterationTime = elapsedIterationMilliseconds.ToString("0.00000000");
         }
         catch
         {
