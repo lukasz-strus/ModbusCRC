@@ -4,8 +4,8 @@
 internal class CRC
 {
     private int _index;
-    private int _hiByte = 0xFF;
-    private int _loByte = 0xFF;
+    private int _hiByte;
+    private int _loByte;
 
     private static readonly byte[] _aCRCHi =
     { 
@@ -52,6 +52,9 @@ internal class CRC
 
     public byte[] Calculate(byte[] data)
     {
+        _hiByte = 0xFF;
+        _loByte = 0xFF;
+
         foreach (var b in data)
         {
             _index = _hiByte ^ b;

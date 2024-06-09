@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using System.Globalization;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -23,12 +22,13 @@ internal partial class MainViewModel : ObservableObject
     private readonly CRC _crc = new();
 
     [RelayCommand]
-    private async Task Calculate()
+    private void Calculate()
     {
         if (InputIsValid() || IterationIsValid()) return;
+        if(Input is null || Iteration is null) return;
 
-        var data = Input!.ToByteArray();
-        var iterations = int.Parse(Iteration!);
+        var data = Input.ToByteArray();
+        var iterations = int.Parse(Iteration);
         
         var result = Array.Empty<byte>();
 
@@ -43,8 +43,8 @@ internal partial class MainViewModel : ObservableObject
         if (ResultIsValid(result)) return;
 
         ResultCRC = result.ToHex(false);
-        ResultTime = sw.ElapsedMilliseconds.ToString();
-        ResultIterationTime = (sw.ElapsedMilliseconds / (double)iterations).ToString(CultureInfo.InvariantCulture);
+        ResultTime = sw.Elapsed.ToString("mm':'ss':'fff");
+        ResultIterationTime = (sw.Elapsed / iterations).ToString("mm':'ss':'fff");
     }
 
     private static bool ResultIsValid(IEnumerable? result)
