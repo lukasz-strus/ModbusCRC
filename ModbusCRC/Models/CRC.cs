@@ -3,10 +3,6 @@
 // ReSharper disable InconsistentNaming
 internal class CRC
 {
-    private int _index;
-    private int _hiByte;
-    private int _loByte;
-
     private static readonly byte[] _aCRCHi =
     { 
         0x00, 0xc1, 0x81, 0x40, 0x01, 0xc0, 0x80, 0x41, 0x01, 0xc0, 0x80, 0x41, 0x00, 0xc1, 0x81,
@@ -52,17 +48,17 @@ internal class CRC
 
     public byte[] Calculate(byte[] data)
     {
-        _hiByte = 0xFF;
-        _loByte = 0xFF;
+        var hiByte = 0xFF;
+        var loByte = 0xFF;
 
         foreach (var b in data)
         {
-            _index = _hiByte ^ b;
-            _hiByte = _loByte ^ _aCRCHi[_index];
-            _loByte = _aCRCLo[_index];
+            var index = hiByte ^ b;
+            hiByte = loByte ^ _aCRCHi[index];
+            loByte = _aCRCLo[index];
         }
 
-        return new[] { (byte)_loByte, (byte)_hiByte };
+        return new[] { (byte)loByte, (byte)hiByte };
     }
     
 }

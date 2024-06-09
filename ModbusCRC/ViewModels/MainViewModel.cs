@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -24,48 +25,74 @@ internal partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void Calculate()
     {
-        if (InputIsValid() || IterationIsValid()) return;
+        if (InputIsNotValid() || IterationIsNotValid()) return;
         if(Input is null || Iteration is null) return;
 
-        var data = Input.ToByteArray();
-        var iterations = int.Parse(Iteration);
-        
-        var result = Array.Empty<byte>();
-
-        var sw = Stopwatch.StartNew();
-        for (var i = 0; i < iterations; i++)
+        try
         {
-            result = _crc.Calculate(data);
+            var data = Input.ToByteArray();
+            var iterations = int.Parse(Iteration);
+            var result = Array.Empty<byte>();
+            var stopWatch = new Stopwatch();
+
+            stopWatch.Start();
+            for (var i = 0; i < iterations; i++)
+            {
+                result = _crc.Calculate(data);
+            }
+            stopWatch.Stop();
+
+            if (ResultIsNotValid(result)) return;
+
+            ResultCRC = result.ToHex(false);
+
+            decimal elapsedMilliseconds = stopWatch.ElapsedMilliseconds;
+            ResultTime = elapsedMilliseconds.ToString(CultureInfo.CurrentCulture);
+            var elapsedIterationMilliseconds = elapsedMilliseconds / iterations;
+            ResultIterationTime = elapsedIterationMilliseconds.ToString(CultureInfo.InvariantCulture);
         }
-
-        sw.Stop();
-
-        if (ResultIsValid(result)) return;
-
-        ResultCRC = result.ToHex(false);
-        ResultTime = sw.Elapsed.ToString("mm':'ss':'fff");
-        ResultIterationTime = (sw.Elapsed / iterations).ToString("mm':'ss':'fff");
+        catch
+        {
+            ShowCRCErrorMsg();
+        }
     }
 
-    private static bool ResultIsValid(IEnumerable? result)
+    private static bool ResultIsNotValid(IEnumerable? result)
     {
         if (result != null) return false;
-        MessageBox.Show("Wystąpił błąd podczas obliczania CRC!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
-        return true;
 
+        ShowCRCErrorMsg();
+        return true;
     }
 
-    private bool IterationIsValid()
+    private bool IterationIsNotValid()
     {
-        if (!string.IsNullOrEmpty(Iteration)) return false;
-        MessageBox.Show("Liczba iteracji jest pusta!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+        if (string.IsNullOrEmpty(Iteration))
+        {
+            MessageBox.Show("Liczba iteracji jest pusta!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+            return true;
+        }
+        var iteration = long.Parse(Iteration);
+        if (iteration is >= 1 and <= 1000000000) return false;
+
+        MessageBox.Show("Liczba iteracji musi być z zakresu 1-1000000000!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
         return true;
     }
 
-    private bool InputIsValid()
+    private bool InputIsNotValid()
     {
-        if (!string.IsNullOrEmpty(Input)) return false;
-        MessageBox.Show("Wejście jest puste!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+        if (string.IsNullOrEmpty(Input))
+        {
+            MessageBox.Show("Wejście jest puste!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+            return true;
+        }
+
+        if (Input.Length <= 512) return false;
+
+        MessageBox.Show("Wejście nie może być dłuższe niż 256 bajtów!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
         return true;
     }
+
+    private static void ShowCRCErrorMsg() => MessageBox.Show("Wystąpił błąd podczas obliczania CRC!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+
 }

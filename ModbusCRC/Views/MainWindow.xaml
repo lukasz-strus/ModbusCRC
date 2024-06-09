@@ -97,7 +97,7 @@
                 Width="200"
                 Margin="5"
                 IsReadOnly="True"
-                Text="{Binding ResultTime}" />
+                Text="{Binding ResultTime, StringFormat={}{0} ms}" />
 
             <Label
                 Grid.Row="2"
@@ -109,7 +109,7 @@
                 Width="200"
                 Margin="5"
                 IsReadOnly="True"
-                Text="{Binding ResultIterationTime}" />
+                Text="{Binding ResultIterationTime, StringFormat={}{0} ms}" />
         </Grid>
 
     </Grid>
